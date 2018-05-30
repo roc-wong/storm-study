@@ -1,4 +1,4 @@
-package org.roc.storm.flux.wordcount.constant;
+package org.roc.storm.wordcount.constant;
 
 /**
  * @author roc

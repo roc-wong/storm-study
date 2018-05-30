@@ -1,31 +1,20 @@
-name: "yaml-topology"
+name: "kafka-spout-word-count"
 config:
-  topology.workers: 1
+  topology.workers: ${topology.workers}
 
 components:
-  - id: "stringScheme"
-    className: "org.apache.storm.kafka.StringScheme"
-
-  - id: "stringMultiScheme"
-    className: "org.apache.storm.spout.SchemeAsMultiScheme"
-    constructorArgs:
-      - ref: "stringScheme"
-
   - id: "zkHosts"
     className: "org.apache.storm.kafka.ZkHosts"
     constructorArgs:
-      - "localhost:2181"
+      - "${kafka.zookeeper.connect}"
+      - "${kafka.zookeeper.paths}"
 
-# 可选的kafka配置
-#  - id: "kafkaConfig"
-#    className: "org.apache.storm.kafka.KafkaConfig"
-#    constructorArgs:
-#      # brokerHosts
-#      - ref: "zkHosts"
-#      # topic
-#      - "myKafkaTopic"
-#      # clientId (optional)
-#      - "myKafkaClientId"
+  - id: "stringMultiSchemeWithTopic"
+    className: "org.apache.storm.kafka.StringMultiSchemeWithTopic"
+
+  - id: "startingOffsetTime"
+    className: "kafka.api.OffsetRequest"
+    factory: "LatestTime"
 
   - id: "spoutConfig"
     className: "org.apache.storm.kafka.SpoutConfig"
@@ -33,43 +22,51 @@ components:
       # brokerHosts
       - ref: "zkHosts"
       # topic
-      - "myKafkaTopic"
+      - "${kafka.consumer.topics}"
       # zkRoot
-      - "/kafkaSpout"
+      - "${kafka.zookeeper.zkRoot}"
       # id
-      - "myId"
+      - "${kafka.consumer.progress.id}"
     properties:
       - name: "ignoreZkOffsets"
-        value: true
+        value: false
       - name: "scheme"
-        ref: "stringMultiScheme"
+        ref: "stringMultiSchemeWithTopic"
+      - name: "zkServers"
+        value: ${kafka.zookeeper.hosts}
+      - name: "zkPort"
+        value: ${kafka.zookeeper.port}
+      - name: "startOffsetTime"
+        ref: "startingOffsetTime"
 
 
 # spout定义
 spouts:
-  - id: "spout_sentence"
-    className: "org.roc.storm.flux.wordcount.spout.RandomSentenceSpout"
+  - id: "spout-kafka-sentence"
     parallelism: 1
+    className: "org.apache.storm.kafka.KafkaSpout"
+    constructorArgs:
+      - ref: "spoutConfig"
 
 # bolt定义
 bolts:
   - id: "bolt_split"
-    className: "org.roc.storm.flux.wordcount.bolt.SplitSentenceBolt"
-    parallelism: 1
+    className: "org.roc.storm.wordcount.bolt.SplitSentenceBolt"
+    parallelism: ${bolt_split.parallelism}
 
   - id: "bolt_word_count"
-    className: "org.roc.storm.flux.wordcount.bolt.WordCount"
-    parallelism: 2
+    className: "org.roc.storm.wordcount.bolt.WordCount"
+    parallelism: ${bolt_word_count.parallelism}
 
   - id: "bolt_logger"
-    className: "org.roc.storm.flux.wordcount.bolt.LogInfoBolt"
-    parallelism: 3
+    className: "org.roc.storm.wordcount.bolt.LogInfoBolt"
+    parallelism: ${bolt_logger.parallelism}
 
 # stream定义
 streams:
 #name暂时未用上（可以在logging,UI等中作为placeholder）
-  - name: "spout_sentence --> bolt_split"
-    from: "spout_sentence"
+  - name: "spout-kafka-sentence --> bolt_split"
+    from: "spout-kafka-sentence"
     to: "bolt_split"
     grouping:
       type: LOCAL_OR_SHUFFLE

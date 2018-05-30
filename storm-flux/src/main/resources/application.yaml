@@ -1,4 +1,4 @@
-name: "yaml-topology"
+name: "flux-word-count"
 config:
   topology.workers: 1
 
@@ -11,15 +11,15 @@ spouts:
 # bolt定义
 bolts:
   - id: "bolt_split"
-    className: "org.roc.storm.flux.wordcount.bolt.SplitSentenceBolt"
+    className: "org.roc.storm.wordcount.bolt.SplitSentenceBolt"
     parallelism: 1
 
   - id: "bolt_word_count"
-    className: "org.roc.storm.flux.wordcount.bolt.WordCount"
+    className: "org.roc.storm.wordcount.bolt.WordCount"
     parallelism: 2
 
   - id: "bolt_logger"
-    className: "org.roc.storm.flux.wordcount.bolt.LogInfoBolt"
+    className: "org.roc.storm.wordcount.bolt.LogInfoBolt"
     parallelism: 3
 
 # stream定义

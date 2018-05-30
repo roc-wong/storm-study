@@ -11,6 +11,7 @@
         <module>storm-demo</module>
         <module>storm-flux</module>
         <module>storm-kafka</module>
+        <module>storm-wordcount</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -19,6 +20,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>1.7</jdk.version>
         <storm.version>1.0.0</storm.version>
+        <!--1.0版本的flux无法解析factory属性-->
+        <storm-flux.version>1.2.1</storm-flux.version>
+        <kafka.version>0.9.0.1</kafka.version>
         <!-- <rabbitmq.version>3.5.6</rabbitmq.version> <mysql.version>5.1.30</mysql.version>
             <hbase.version>0.96.1.1-cdh5.0.0</hbase.version> -->
         <jedis.version>2.7.3</jedis.version>
@@ -35,20 +39,38 @@
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>flux-core</artifactId>
-                <version>${storm.version}</version>
+                <version>${storm-flux.version}</version>
             </dependency>
             <!-- Flux Wrappers include -->
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>flux-wrappers</artifactId>
-                <version>${storm.version}</version>
+                <version>${storm-flux.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>storm-kafka</artifactId>
                 <version>${storm.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_2.11</artifactId>
+                <version>${kafka.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -84,6 +106,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>20.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.7</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -169,6 +196,7 @@
                                 <goal>shade</goal>
                             </goals>
                             <configuration>
+                                <shadedArtifactAttached>true</shadedArtifactAttached>
                                 <transformers>
                                     <transformer
                                             implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>

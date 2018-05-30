@@ -1,4 +1,4 @@
-package org.roc.storm.flux.wordcount.bolt;
+package org.roc.storm.wordcount.bolt;
 
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;

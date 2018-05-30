@@ -1,0 +1,3 @@
+name: "kafka-spout-word-count"
+topologySource:
+  className: "org.roc.storm.kafka.topology.WordCountTopology"

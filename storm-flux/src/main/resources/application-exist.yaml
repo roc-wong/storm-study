@@ -1,3 +1,3 @@
-name: "existing-topology"
+name: "flux-word-count"
 topologySource:
   className: "org.roc.storm.flux.wordcount.WordCountTopology"
