@@ -19,6 +19,7 @@ package org.roc.storm.flux.wordcount;
 
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
+import org.apache.storm.generated.StormTopology;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 import org.roc.storm.flux.wordcount.bolt.LogInfoBolt;
@@ -40,14 +41,28 @@ public class WordCountTopology {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WordCountTopology.class);
 
-
     public static void main(String[] args) throws Exception {
-        run(args);
+        WordCountTopology wordCountTopology = new WordCountTopology();
+
+        Config conf = new Config();
+        conf.setDebug(true);
+        conf.setNumWorkers(1);
+
+        String topologyName = "word-count";
+
+        LocalCluster localCluster = new LocalCluster();
+        localCluster.submitTopology(topologyName, conf, wordCountTopology.getTopology(conf));
     }
 
-    protected static void run(String[] args) {
-        Config conf = new Config();
-
+    /**
+     * 如果你有已经存在的Storm拓扑，你仍然可以用Flux来部署/运行/测试它们。
+     * 这个特点允许你按照已有的拓扑类来改变Flux构造参数，引用，属性和拓扑配置声明。
+     * 使用已有拓扑类最简单的方法就是通过下面的方法定义一个名为 getTopology() 的实例方法。
+     * PS：非静态方法
+     * @param config
+     * @return
+     */
+    public StormTopology getTopology(Config config){
         TopologyBuilder builder = new TopologyBuilder();
 
         builder.setSpout(SPOUT_SENTENCE, new RandomSentenceSpout(), 1);
@@ -55,17 +70,6 @@ public class WordCountTopology {
         builder.setBolt(BOLT_WORD_COUNT, new WordCount(), 3).fieldsGrouping(BOLT_SPLIT, new Fields("word"));
         builder.setBolt(BOLT_LOGGER, new LogInfoBolt()).localOrShuffleGrouping(BOLT_WORD_COUNT);
 
-        conf.setDebug(true);
-
-        String topologyName = "word-count";
-
-        conf.setNumWorkers(1);
-
-        if (args != null && args.length > 0) {
-            topologyName = args[0];
-        }
-
-        LocalCluster localCluster = new LocalCluster();
-        localCluster.submitTopology(topologyName, conf, builder.createTopology());
+        return builder.createTopology();
     }
 }

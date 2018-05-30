@@ -10,6 +10,7 @@
     <modules>
         <module>storm-demo</module>
         <module>storm-flux</module>
+        <module>storm-kafka</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -40,6 +41,11 @@
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>flux-wrappers</artifactId>
+                <version>${storm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.storm</groupId>
+                <artifactId>storm-kafka</artifactId>
                 <version>${storm.version}</version>
             </dependency>
 
