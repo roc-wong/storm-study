@@ -1,4 +1,4 @@
-package org.roc.storm.flux.wordcount.spout;
+package org.roc.storm.wordcount.spout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

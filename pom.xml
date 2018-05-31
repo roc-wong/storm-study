@@ -12,6 +12,7 @@
         <module>storm-flux</module>
         <module>storm-kafka</module>
         <module>storm-wordcount</module>
+        <module>storm-jdbc</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -47,6 +48,8 @@
                 <artifactId>flux-wrappers</artifactId>
                 <version>${storm-flux.version}</version>
             </dependency>
+
+            <!--Storm kafka integration begin-->
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>storm-kafka</artifactId>
@@ -71,6 +74,21 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!--Storm kafka integration end-->
+
+            <!--strom jdbc integration begin-->
+            <dependency>
+                <groupId>org.apache.storm</groupId>
+                <artifactId>storm-jdbc</artifactId>
+                <version>${storm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.31</version>
+            </dependency>
+            <!--strom jdbc integration end-->
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>

@@ -12,4 +12,7 @@ public final class TopologyConstants {
     public static final String BOLT_WORD_COUNT = "bolt_word_count";
     public static final String BOLT_LOGGER = "bolt_logger";
 
+    /*JDBC Integration*/
+    public static final String BOLT_JDBC_INSERT = "bolt_jdbc_insert";
+
 }

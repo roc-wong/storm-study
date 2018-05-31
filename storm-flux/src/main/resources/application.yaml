@@ -5,7 +5,7 @@ config:
 # spout定义
 spouts:
   - id: "spout_sentence"
-    className: "org.roc.storm.flux.wordcount.spout.RandomSentenceSpout"
+    className: "org.roc.storm.wordcount.spout.RandomSentenceSpout"
     parallelism: 1
 
 # bolt定义
