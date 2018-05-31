@@ -43,7 +43,7 @@ components:
 # spout定义
 spouts:
   - id: "spout-kafka-sentence"
-    parallelism: 1
+    parallelism: ${spout-kafka-sentence.parallelism}
     className: "org.apache.storm.kafka.KafkaSpout"
     constructorArgs:
       - ref: "spoutConfig"
