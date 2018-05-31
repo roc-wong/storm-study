@@ -1,0 +1,94 @@
+name: "jdbc-word-count"
+config:
+  topology.workers: 1
+
+
+components:
+  - id: "hikariConfig"
+    className: "java.util.HashMap"
+    configMethods:
+      - name: "put"
+        args:
+          - "dataSourceClassName"
+          - "${data.source.class.name}"
+      - name: "put"
+        args:
+          - "dataSource.url"
+          - "${data.source.url}"
+      - name: "put"
+        args:
+          - "dataSource.user"
+          - "${data.source.user}"
+      - name: "put"
+        args:
+          - "dataSource.password"
+          - "${data.source.password}"
+
+  - id: "connectionProvider"
+    className: "org.apache.storm.jdbc.common.HikariCPConnectionProvider"
+    constructorArgs:
+      - ref: "hikariConfig"
+
+  - id: "wordColumn"
+    className: "org.apache.storm.jdbc.common.Column"
+    constructorArgs:
+      - ref: "hikariConfig"
+
+
+  - id: "schemaColumns"
+    className: "java.util.ArrayList"
+
+  - id: "tableJdbcMapper"
+    className: "org.apache.storm.jdbc.mapper.SimpleJdbcMapper"
+
+
+# spout定义
+spouts:
+  - id: "spout_sentence"
+    className: "org.roc.storm.wordcount.spout.RandomSentenceSpout"
+    parallelism: 1
+
+# bolt定义
+bolts:
+  - id: "bolt_split"
+    className: "org.roc.storm.wordcount.bolt.SplitSentenceBolt"
+    parallelism: 1
+
+  - id: "bolt_word_count"
+    className: "org.roc.storm.wordcount.bolt.WordCount"
+    parallelism: 2
+
+  - id: "bolt_jdbc_insert"
+    className: "org.apache.storm.jdbc.bolt.JdbcInsertBolt"
+    constructorArgs:
+      - ref: "connectionProvider"
+      - ref: "tableJdbcMapper"
+    configMethods:
+      - name: "withInsertQuery"
+        args:
+          - "insert into storm_jdbc_test(word, count) values(?, ?) on duplicate key update count=count + 1"
+      - name: "withQueryTimeoutSecs"
+        args:
+          - 20
+
+# stream定义
+streams:
+#name暂时未用上（可以在logging,UI等中作为placeholder）
+  - name: "spout_sentence --> bolt_split"
+    from: "spout_sentence"
+    to: "bolt_split"
+    grouping:
+      type: LOCAL_OR_SHUFFLE
+
+  - name: "bolt_split --> bolt_word_count"
+    from: "bolt_split"
+    to: "bolt_word_count"
+    grouping:
+      type: FIELDS
+      args: ["word"]
+
+  - name: "bolt_word_count --> bolt_jdbc_insert"
+    from: "bolt_word_count"
+    to: "bolt_jdbc_insert"
+    grouping:
+      type: LOCAL_OR_SHUFFLE
