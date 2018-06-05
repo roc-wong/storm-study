@@ -11,6 +11,7 @@ public class TableJdbcMapperTest {
     @Test
     public void testChildInit() throws Exception {
         Children c = new Children();
+        c.hh();
         /* Parent pc=new Children();
         Parent pp=new Parent();
         pc.hh();

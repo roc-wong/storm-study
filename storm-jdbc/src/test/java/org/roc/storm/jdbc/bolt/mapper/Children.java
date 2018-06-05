@@ -20,7 +20,9 @@ public class Children extends Parent {
         System.out.println("children static hh");
     }
 
+    @Override
     public void hh() {
+        super.hh();
         System.out.println("children hh");
     }
 
